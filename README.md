@@ -25,13 +25,12 @@ To use this application, make sure you have Node.js installed on your system. Th
 To run the application, use the following command:
 1. Start
     ```bash
-    npm start <csvFilePath>
+    npm start <csvFilepath>
 
-Commands
-calculate: Analyze the data from the CSV file and calculates the fare.
+The program contains file called journeys.csv which can be edited to add data.
 
 ## Example
 Example on how to run the command.
 1. Example
     ```bash
-    npm start calculate data.csv
+    npm start journeys.csv
