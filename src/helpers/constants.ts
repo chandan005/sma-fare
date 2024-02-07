@@ -16,30 +16,27 @@ export const fareCaps: FareCap[] = [
   { fromLine: LineType.Red, toLine: LineType.Green, dailyCap: 15, weeklyCap: 90 },
 ];
 
-export const peakHours: { [day: string]: { start: string; end: string }[] } = {
-  Monday: [
+export const peakHours: { [key: number]: { start: string; end: string }[] } = {
+  0: [{ start: '18:00', end: '23:00' }],
+  1: [
     { start: '08:00', end: '10:00' },
     { start: '16:30', end: '19:00' },
   ],
-  Tuesday: [
+  2: [
     { start: '08:00', end: '10:00' },
     { start: '16:30', end: '19:00' },
   ],
-  Wednesday: [
+  3: [
     { start: '08:00', end: '10:00' },
     { start: '16:30', end: '19:00' },
   ],
-  Thursday: [
+  4: [
     { start: '08:00', end: '10:00' },
     { start: '16:30', end: '19:00' },
   ],
-  Friday: [
-    { start: '08:00', end: '10:00' },
-    { start: '16:30', end: '19:00' },
-  ],
-  Saturday: [
+  5: [
     { start: '10:00', end: '14:00' },
     { start: '18:00', end: '23:00' },
   ],
-  Sunday: [{ start: '18:00', end: '23:00' }],
+  6: [{ start: '18:00', end: '23:00' }],
 };

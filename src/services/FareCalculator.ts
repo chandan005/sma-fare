@@ -11,9 +11,32 @@ const weeklyCumulativeFares: { [line: string]: { [weekStart: string]: number } }
  * @returns boolean
  */
 
+// function isPeakHour(date: Date): boolean {
+//   // const day = date.toLocaleDateString('en-US', { weekday: 'long' });
+//   // const time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+//   const day = date.getUTCDay();
+//   const hours = date.getUTCHours();
+//   const dayPeakHours = peakHours[day];
+//   console.log(day, hours, dayPeakHours);
+
+//   if (!dayPeakHours) {
+//     return false;
+//   }
+
+//   for (const { start, end } of dayPeakHours) {
+//     if (time >= start && time <= end) {
+//       return true;
+//     }
+//   }
+
+//   return false;
+// }
 function isPeakHour(date: Date): boolean {
-  const day = date.toLocaleDateString('en-US', { weekday: 'long' });
-  const time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const day = date.getUTCDay();
+  const hours = date.getUTCHours();
+  const minutes = date.getUTCMinutes();
+  const currentTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
   const dayPeakHours = peakHours[day];
 
   if (!dayPeakHours) {
@@ -21,7 +44,7 @@ function isPeakHour(date: Date): boolean {
   }
 
   for (const { start, end } of dayPeakHours) {
-    if (time >= start && time <= end) {
+    if (currentTime >= start && currentTime <= end) {
       return true;
     }
   }
@@ -59,19 +82,15 @@ function applyFareCaps(totalFare: number, journey: Journey): number {
     throw new Error(`No fare cap found for journey from ${fromLine} to ${toLine}`);
   }
 
-  const dailyCapExceeded = dailyCumulativeFare >= fareCap.dailyCap;
-  const weeklyCapExceeded = weeklyCumulativeFare >= fareCap.weeklyCap;
+  // Calculate the remaining allowance based on daily and weekly caps
+  const dailyRemaining = fareCap.dailyCap - dailyCumulativeFare;
+  const weeklyRemaining = fareCap.weeklyCap - weeklyCumulativeFare;
 
-  // Apply fare cap if the limits are not exceeded
-  let cappedFare = 0;
-  if (!dailyCapExceeded && !weeklyCapExceeded) {
-    cappedFare = totalFare;
-  }
+  // Apply the fare cap based on the remaining allowance
+  const cappedFare = Math.min(totalFare, dailyRemaining, weeklyRemaining);
 
   dailyCumulativeFares[fromLine][journeyDate.toDateString()] = dailyCumulativeFare + cappedFare;
-  // Update cumulative fare for the week for the line
   weeklyCumulativeFares[fromLine][weekStart.toDateString()] = weeklyCumulativeFare + cappedFare;
-
   return cappedFare;
 }
 

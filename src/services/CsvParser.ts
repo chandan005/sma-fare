@@ -16,9 +16,15 @@ export async function parseCSV(filePath: string): Promise<Journey[]> {
   for await (const record of parser) {
     const fromLine = record.FromLine.trim();
     const toLine = record.ToLine.trim();
-    const dateTime = new Date(record.DateTime.trim());
+    let dateTimeString = record.DateTime.trim();
 
-    journeys.push({ fromLine, toLine, dateTime });
+    // Append 'Z' to indicate UTC time if not already present
+    if (!dateTimeString.endsWith('Z')) {
+      dateTimeString += 'Z';
+    }
+
+    const dateTimeUTC = new Date(dateTimeString);
+    journeys.push({ fromLine, toLine, dateTime: dateTimeUTC });
   }
   return journeys;
 }
