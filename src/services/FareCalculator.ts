@@ -10,27 +10,6 @@ const weeklyCumulativeFares: { [line: string]: { [weekStart: string]: number } }
  * @param dateTime
  * @returns boolean
  */
-
-// function isPeakHour(date: Date): boolean {
-//   // const day = date.toLocaleDateString('en-US', { weekday: 'long' });
-//   // const time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-//   const day = date.getUTCDay();
-//   const hours = date.getUTCHours();
-//   const dayPeakHours = peakHours[day];
-//   console.log(day, hours, dayPeakHours);
-
-//   if (!dayPeakHours) {
-//     return false;
-//   }
-
-//   for (const { start, end } of dayPeakHours) {
-//     if (time >= start && time <= end) {
-//       return true;
-//     }
-//   }
-
-//   return false;
-// }
 function isPeakHour(date: Date): boolean {
   const day = date.getUTCDay();
   const hours = date.getUTCHours();
