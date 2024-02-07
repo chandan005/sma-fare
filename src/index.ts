@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import * as fs from 'fs';
-import { convertCSVtoJSON } from './services/csv/CsvParser';
+import { parseCSV } from './services/CsvParser';
 
 const program = new Command();
 program
@@ -12,6 +12,6 @@ program
       process.exit(1);
     }
     console.log('New and Hello');
-    console.log(await convertCSVtoJSON(file));
+    console.log(await parseCSV(file));
   })
   .parse(process.argv);
