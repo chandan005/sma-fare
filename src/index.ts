@@ -1,19 +1,17 @@
 import { Command } from 'commander';
-import figlet from 'figlet';
+import * as fs from 'fs';
+import { convertCSVtoJSON } from './services/csv/CsvParser';
 
-const program = new Command()
+const program = new Command();
 program
   .description('SMS Fare Command Line Application.')
-  .action((name: string) => {
-    figlet.text('Hello ' + name, (err, data) => {
-      if (err) {
-        console.log('Something went wrong...');
-        console.dir(err);
-        return;
-      }
-      console.log(data);
-    });
-  });
-
-// Parse command line arguments
-program.parse(process.argv);
+  .arguments('<file>')
+  .action(async (file) => {
+    if (!fs.existsSync(file)) {
+      console.error('Error: The specified file does not exist.');
+      process.exit(1);
+    }
+    console.log('New and Hello');
+    console.log(await convertCSVtoJSON(file));
+  })
+  .parse(process.argv);
