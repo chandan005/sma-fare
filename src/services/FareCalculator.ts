@@ -1,8 +1,9 @@
 import { fareCaps, fareRules, peakHours } from '../helpers/constants';
 import { Journey } from '../interfaces/Journey';
 
+// Keeps track of daily and weekly cumulative fares.
 const dailyCumulativeFares: { [line: string]: { [date: string]: number } } = {};
-const weeklyCumulativeFares: { [line: string]: number } = {};
+const weeklyCumulativeFares: { [line: string]: { [weekStart: string]: number } } = {};
 
 /**
  * Function to check if a given date and time falls within peak hours
@@ -29,62 +30,35 @@ function isPeakHour(date: Date): boolean {
 }
 
 /**
- * Function to calculate the fare for a journey based on fare rules
- * @param journey
- * @returns number
- */
-function calculateFare(journey: Journey): number {
-  const { fromLine, toLine, dateTime } = journey;
-
-  const isPeak = isPeakHour(dateTime);
-
-  // Find fare rule for the journey
-  const fareRule = fareRules.find((rule) => rule.fromLine === fromLine && rule.toLine === toLine);
-
-  if (!fareRule) {
-    throw new Error(`No fare rule found for journey from ${fromLine} to ${toLine}`);
-  }
-
-  const fare = isPeak ? fareRule.peak : fareRule.nonPeak;
-
-  return fare;
-}
-
-/**
  * Function to apply fare caps for a journey
  * @param totalFare
  * @param journey
  * @returns number
  */
-// Apply fare caps based on daily and weekly limits
 function applyFareCaps(totalFare: number, journey: Journey): number {
-  const { fromLine, toLine, dateTime } = journey;
-  // Check if daily cumulative fare map for the line exists, if not initialize it
+  const { fromLine, toLine, dateTime: journeyDate } = journey;
+
   if (!dailyCumulativeFares[fromLine]) {
     dailyCumulativeFares[fromLine] = {};
   }
 
-  // Check if weekly cumulative fare map for the line exists, if not initialize it
   if (!weeklyCumulativeFares[fromLine]) {
-    weeklyCumulativeFares[fromLine] = 0;
+    weeklyCumulativeFares[fromLine] = {};
   }
 
-  // Get the cumulative fare for the day for the line
-  const dailyCumulativeFare = dailyCumulativeFares[fromLine][dateTime.toDateString()] || 0;
-  // Get the cumulative fare for the week for the line
-  const weeklyCumulativeFare = weeklyCumulativeFares[fromLine] || 0;
+  // Set Daily and Weekly
+  const dailyCumulativeFare = dailyCumulativeFares[fromLine][journeyDate.toDateString()] || 0;
+  const weekStart = new Date(journeyDate);
+  weekStart.setDate(weekStart.getDate() - journeyDate.getDay());
+  weekStart.setHours(0, 0, 0, 0);
+  const weeklyCumulativeFare = weeklyCumulativeFares[fromLine][weekStart.toDateString()] || 0;
 
-  // Find fare cap for the journey
   const fareCap = fareCaps.find((cap) => cap.fromLine === fromLine && cap.toLine === toLine);
 
   if (!fareCap) {
     throw new Error(`No fare cap found for journey from ${fromLine} to ${toLine}`);
   }
 
-  // Check if the journey is within same line or different lines
-  const isSameLine = fromLine === toLine;
-
-  // Select fare cap based on whether cumulative fares exceed daily or weekly limits
   const dailyCapExceeded = dailyCumulativeFare >= fareCap.dailyCap;
   const weeklyCapExceeded = weeklyCumulativeFare >= fareCap.weeklyCap;
 
@@ -94,10 +68,9 @@ function applyFareCaps(totalFare: number, journey: Journey): number {
     cappedFare = totalFare;
   }
 
-  // Update cumulative fare for the day for the line
-  dailyCumulativeFares[fromLine][dateTime.toDateString()] = dailyCumulativeFare + cappedFare;
+  dailyCumulativeFares[fromLine][journeyDate.toDateString()] = dailyCumulativeFare + cappedFare;
   // Update cumulative fare for the week for the line
-  weeklyCumulativeFares[fromLine] = weeklyCumulativeFare + cappedFare;
+  weeklyCumulativeFares[fromLine][weekStart.toDateString()] = weeklyCumulativeFare + cappedFare;
 
   return cappedFare;
 }
